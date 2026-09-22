@@ -1,0 +1,12 @@
+---
+# Règles volontairement souples : on vise la cohérence, pas la perfection.
+extends: default
+
+rules:
+  line-length:
+    max: 120
+  comments:
+    min-spaces-from-content: 1
+  truthy:
+    allowed-values: ["true", "false"]
+    check-keys: false

@@ -1,3 +1,4 @@
+---
 name: CI
 
 on: [push, pull_request]
@@ -17,6 +18,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install ansible-core
           ansible-galaxy collection install -r requirements.yml
+
+      - name: Vérifier la forme des fichiers YAML
+        run: |
+          pip install yamllint
+          yamllint .
 
       - name: Vérifier l'inventaire
         run: ansible-inventory -i inventory/hosts.yml --list > /dev/null
