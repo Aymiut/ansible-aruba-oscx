@@ -1,0 +1,20 @@
+---
+# Consultations externes
+
+# Commutateur neuf intégré au stack existant en tant que membre 2.
+vsf:
+  member: 2
+  link_interfaces:
+    - 2/1/49
+    - 2/1/50
+
+# Agrégations à créer, relevées port par port sur site.
+lags:
+  - id: 11
+    description: "Bornes Wi-Fi, aile est"
+    member: 2
+    interfaces:
+      - 2/1/11
+      - 2/1/12
+    native_vlan: 50
+    tagged_vlans: [50, 60]

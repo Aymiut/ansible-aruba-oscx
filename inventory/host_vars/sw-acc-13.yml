@@ -1,0 +1,13 @@
+---
+# Administration
+
+# Agrégations à créer, relevées port par port sur site.
+lags:
+  - id: 15
+    description: "Bornes Wi-Fi, administration"
+    member: 1
+    interfaces:
+      - 1/1/19
+      - 1/1/20
+    native_vlan: 50
+    tagged_vlans: [50, 60]

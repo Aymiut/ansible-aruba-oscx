@@ -1,0 +1,13 @@
+---
+# Maternité
+
+# Agrégations à créer, relevées port par port sur site.
+lags:
+  - id: 13
+    description: "Bornes Wi-Fi, maternité"
+    member: 1
+    interfaces:
+      - 1/1/21
+      - 1/1/22
+    native_vlan: 50
+    tagged_vlans: [50, 60]

@@ -1,0 +1,55 @@
+---
+# Sur un stack, l'identifiant de port s'écrit membre/module/port. Viser le
+# mauvais membre revient à reconfigurer un commutateur déjà en production :
+# on refuse d'appliquer si un port ne correspond pas au membre déclaré.
+- name: Vérifier que chaque port appartient au membre de stack déclaré
+  ansible.builtin.assert:
+    that:
+      - item.1.split('/')[0] | int == item.0.member
+    fail_msg: >-
+      {{ item.1 }} n'est pas sur le membre {{ item.0.member }} du stack
+      ({{ inventory_hostname }}). Corriger le host_vars avant d'appliquer.
+    quiet: true
+  loop: "{{ lags | subelements('interfaces') }}"
+  loop_control:
+    label: "lag{{ item.0.id }} {{ item.1 }}"
+
+# Les ports d'un commutateur Aruba sont administrativement down par défaut.
+# Sans cette tâche, l'agrégation se crée mais ne monte jamais.
+- name: Activer les ports membres de l'agrégation
+  arubanetworks.aoscx.aoscx_interface:
+    name: "{{ item.1 }}"
+    description: "Membre de lag{{ item.0.id }}"
+    enabled: true
+  loop: "{{ lags | subelements('interfaces') }}"
+  loop_control:
+    label: "{{ item.1 }}"
+
+- name: Créer les agrégations LACP
+  arubanetworks.aoscx.aoscx_lag_interface:
+    name: "lag{{ item.id }}"
+    interfaces: "{{ item.interfaces }}"
+    lacp_mode: active
+    state: create
+  loop: "{{ lags }}"
+  loop_control:
+    label: "lag{{ item.id }} {{ item.description }}"
+
+- name: Poser les VLAN sur les agrégations
+  arubanetworks.aoscx.aoscx_l2_interface:
+    interface: "lag{{ item.id }}"
+    vlan_mode: trunk
+    native_vlan_id: "{{ item.native_vlan | string }}"
+    vlan_trunks: "{{ item.tagged_vlans }}"
+  loop: "{{ lags }}"
+  loop_control:
+    label: "lag{{ item.id }}"
+
+- name: Activer les agrégations
+  arubanetworks.aoscx.aoscx_interface:
+    name: "lag{{ item.id }}"
+    description: "{{ item.description }}"
+    enabled: true
+  loop: "{{ lags }}"
+  loop_control:
+    label: "lag{{ item.id }}"

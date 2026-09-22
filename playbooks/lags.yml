@@ -1,0 +1,11 @@
+---
+# Ne s'applique qu'aux commutateurs dont le host_vars déclare des agrégations.
+- name: Créer les agrégations relevées sur site
+  hosts: aoscx
+  gather_facts: false
+  tasks:
+    - name: Créer les agrégations et poser leurs VLAN
+      ansible.builtin.include_role:
+        name: aoscx
+        tasks_from: lags
+      when: lags | default([]) | length > 0

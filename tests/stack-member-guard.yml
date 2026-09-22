@@ -1,0 +1,45 @@
+---
+# Test hors matériel du garde-fou des agrégations : le rôle doit refuser un
+# port qui n'appartient pas au membre de stack déclaré. C'est exactement
+# l'erreur qui, en production, a écrasé la configuration de commutateurs déjà
+# en service.
+- name: Garde-fou sur le numéro de membre de stack
+  hosts: localhost
+  gather_facts: false
+  vars:
+    conforme:
+      - id: 11
+        member: 2
+        interfaces: ["2/1/11", "2/1/12"]
+    errone:
+      - id: 11
+        member: 2
+        interfaces: ["1/1/11", "2/1/12"]
+  tasks:
+    - name: Une déclaration correcte passe
+      ansible.builtin.assert:
+        that:
+          - item.1.split('/')[0] | int == item.0.member
+        quiet: true
+      loop: "{{ conforme | subelements('interfaces') }}"
+      loop_control:
+        label: "{{ item.1 }}"
+
+    - name: Une déclaration incorrecte est refusée
+      block:
+        - name: Vérifier les ports
+          ansible.builtin.assert:
+            that:
+              - item.1.split('/')[0] | int == item.0.member
+            quiet: true
+          loop: "{{ errone | subelements('interfaces') }}"
+          loop_control:
+            label: "{{ item.1 }}"
+
+        - name: Le test échoue si le garde-fou laisse passer
+          ansible.builtin.fail:
+            msg: "Le port 1/1/11 aurait dû être refusé pour le membre 2."
+      rescue:
+        - name: Refus bien constaté
+          ansible.builtin.debug:
+            msg: "Le garde-fou a bien bloqué le port du mauvais membre de stack."

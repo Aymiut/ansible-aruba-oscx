@@ -1,0 +1,11 @@
+---
+# Ordre d'une campagne complète : on relève l'existant, puis on applique.
+# Toujours lancer une première fois avec --check avant d'appliquer.
+- name: Relevé de l'existant
+  ansible.builtin.import_playbook: versions.yml
+
+- name: VLAN du parc
+  ansible.builtin.import_playbook: vlans.yml
+
+- name: Agrégations
+  ansible.builtin.import_playbook: lags.yml

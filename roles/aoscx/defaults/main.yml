@@ -1,0 +1,5 @@
+---
+# Un commutateur sans agrégation ni stack déclarés n'est pas modifié par les
+# tâches correspondantes : les boucles tournent simplement à vide.
+lags: []
+vsf: {}

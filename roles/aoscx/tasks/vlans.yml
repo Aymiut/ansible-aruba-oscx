@@ -1,0 +1,10 @@
+---
+- name: Créer les VLAN du parc
+  arubanetworks.aoscx.aoscx_vlan:
+    vlan_id: "{{ item.id }}"
+    name: "{{ item.name }}"
+    admin_state: up
+    state: create
+  loop: "{{ vlans }}"
+  loop_control:
+    label: "{{ item.id }} {{ item.name }}"

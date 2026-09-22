@@ -1,0 +1,9 @@
+---
+- name: Propager les VLAN sur tout le parc
+  hosts: aoscx
+  gather_facts: false
+  tasks:
+    - name: Créer les VLAN déclarés dans group_vars
+      ansible.builtin.include_role:
+        name: aoscx
+        tasks_from: vlans

@@ -1,0 +1,15 @@
+---
+- name: Relever la version logicielle
+  arubanetworks.aoscx.aoscx_facts:
+    gather_subset:
+      - software_version
+      - platform_name
+      - host_name
+
+- name: Afficher la version et l'écart éventuel avec la version attendue
+  ansible.builtin.debug:
+    msg: >-
+      {{ inventory_hostname }} ({{ ansible_net_platform_name | default('modèle inconnu') }}) :
+      {{ ansible_net_software_version | default('version inconnue') }}
+      {{ '— conforme' if ansible_net_software_version | default('') == firmware_expected
+         else '— ATTENDU ' ~ firmware_expected }}

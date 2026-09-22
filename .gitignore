@@ -1,0 +1,6 @@
+# Les mots de passe réels ne sont jamais versionnés : ce fichier est chiffré
+# avec ansible-vault et reste local. Voir vault.yml.example.
+inventory/group_vars/aoscx/vault.yml
+*.retry
+.vault-password
+__pycache__/

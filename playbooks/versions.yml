@@ -1,0 +1,11 @@
+---
+# Lecture seule : relève la version logicielle de chaque commutateur et
+# signale ceux qui s'écartent de la version attendue.
+- name: Relever les versions logicielles du parc
+  hosts: aoscx
+  gather_facts: false
+  tasks:
+    - name: Interroger chaque commutateur
+      ansible.builtin.include_role:
+        name: aoscx
+        tasks_from: versions

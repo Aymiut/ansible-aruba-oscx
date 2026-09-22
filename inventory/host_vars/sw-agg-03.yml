@@ -1,0 +1,6 @@
+---
+# Agrégation bâtiment C
+
+# Lot ancien : compte différent du reste du parc.
+oscx_user: "{{ vault_legacy_user }}"
+oscx_password: "{{ vault_legacy_password }}"

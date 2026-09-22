@@ -1,0 +1,2 @@
+# Bibliothèque Python utilisée par la collection pour parler à l'API REST.
+pyaoscx
