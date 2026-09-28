@@ -1,15 +1,15 @@
 ---
-# Copier ce fichier en vault.yml puis le chiffrer :
+# Copy this file to vault.yml, then encrypt it:
 #
 #   cp vault.yml.example vault.yml
 #   ansible-vault encrypt vault.yml
 #
-# vault.yml n'est jamais versionné (voir .gitignore).
+# vault.yml is never versioned (see .gitignore).
 
-# Compte utilisé sur la majorité du parc.
+# Account used on most of the fleet.
 vault_oscx_user: admin
 vault_oscx_password: CHANGE_ME
 
-# Compte du lot le plus ancien, qui n'a jamais été aligné sur le reste.
+# Account for the oldest batch, which was never aligned with the rest.
 vault_legacy_user: admin
-vault_legacy_password: CHANGE_ME_AUSSI
+vault_legacy_password: CHANGE_ME_TOO

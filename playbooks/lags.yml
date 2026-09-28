@@ -1,10 +1,10 @@
 ---
-# Ne s'applique qu'aux commutateurs dont le host_vars déclare des agrégations.
-- name: Créer les agrégations relevées sur site
+# Only applies to switches whose host_vars declares LAGs.
+- name: Create the LAGs surveyed on site
   hosts: aoscx
   gather_facts: false
   tasks:
-    - name: Créer les agrégations et poser leurs VLAN
+    - name: Create the LAGs and assign their VLANs
       ansible.builtin.include_role:
         name: aoscx
         tasks_from: lags

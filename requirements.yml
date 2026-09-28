@@ -1,8 +1,8 @@
 ---
-# La collection pilote les commutateurs par l'API REST d'AOS-CX.
+# The collection drives the switches through the AOS-CX REST API.
 #
-# Attention à la compatibilité des versions : ansible-core doit être dans la
-# plage supportée par la collection. Une version d'ansible-core trop récente
-# fait échouer la connexion sans message clair (voir README, « Pièges »).
+# Watch out for version compatibility: ansible-core must be within the range
+# supported by the collection. An ansible-core version that is too recent makes
+# the connection fail with no clear error message (see README, "Lessons from production").
 collections:
   - name: arubanetworks.aoscx

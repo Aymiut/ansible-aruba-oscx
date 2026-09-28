@@ -1,5 +1,5 @@
 ---
-# Un commutateur sans agrégation ni stack déclarés n'est pas modifié par les
-# tâches correspondantes : les boucles tournent simplement à vide.
+# A switch that declares no LAG and no stack is left untouched by the
+# corresponding tasks: the loops simply run empty.
 lags: []
 vsf: {}

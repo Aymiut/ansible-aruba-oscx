@@ -1,5 +1,5 @@
-# Les mots de passe réels ne sont jamais versionnés : ce fichier est chiffré
-# avec ansible-vault et reste local. Voir vault.yml.example.
+# Real passwords are never versioned: this file is encrypted with
+# ansible-vault and stays local. See vault.yml.example.
 inventory/group_vars/aoscx/vault.yml
 *.retry
 .vault-password

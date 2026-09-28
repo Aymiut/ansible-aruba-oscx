@@ -1,11 +1,11 @@
 ---
-# Ordre d'une campagne complète : on relève l'existant, puis on applique.
-# Toujours lancer une première fois avec --check avant d'appliquer.
-- name: Relevé de l'existant
+# Order of a full run: survey the current state first, then apply.
+# Always run once with --check before applying.
+- name: Survey the current state
   ansible.builtin.import_playbook: versions.yml
 
-- name: VLAN du parc
+- name: Fleet VLANs
   ansible.builtin.import_playbook: vlans.yml
 
-- name: Agrégations
+- name: LAGs
   ansible.builtin.import_playbook: lags.yml

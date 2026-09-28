@@ -1,5 +1,5 @@
 ---
-# Règles volontairement souples : on vise la cohérence, pas la perfection.
+# Deliberately loose rules: the goal is consistency, not perfection.
 extends: default
 
 rules:

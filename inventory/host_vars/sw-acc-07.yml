@@ -1,6 +1,6 @@
 ---
-# Bloc opératoire
+# Operating theatre
 
-# Lot ancien : compte différent du reste du parc.
+# Legacy batch: different account from the rest of the fleet.
 oscx_user: "{{ vault_legacy_user }}"
 oscx_password: "{{ vault_legacy_password }}"

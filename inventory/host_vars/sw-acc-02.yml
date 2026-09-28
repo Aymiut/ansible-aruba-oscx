@@ -1,17 +1,17 @@
 ---
-# Consultations externes
+# Outpatient clinics
 
-# Commutateur neuf intégré au stack existant en tant que membre 2.
+# New switch added to the existing stack as member 2.
 vsf:
   member: 2
   link_interfaces:
     - 2/1/49
     - 2/1/50
 
-# Agrégations à créer, relevées port par port sur site.
+# LAGs to create, surveyed port by port on site.
 lags:
   - id: 11
-    description: "Bornes Wi-Fi, aile est"
+    description: "Wi-Fi access points, east wing"
     member: 2
     interfaces:
       - 2/1/11

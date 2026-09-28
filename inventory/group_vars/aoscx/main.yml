@@ -1,5 +1,5 @@
 ---
-# Connexion : les modules de la collection passent par l'API REST d'AOS-CX.
+# Connection: the collection's modules go through the AOS-CX REST API.
 ansible_network_os: arubanetworks.aoscx.aoscx
 ansible_connection: arubanetworks.aoscx.aoscx
 ansible_httpapi_use_ssl: true
@@ -7,33 +7,33 @@ ansible_httpapi_validate_certs: false
 ansible_user: "{{ oscx_user }}"
 ansible_password: "{{ oscx_password }}"
 
-# Identifiants par défaut du parc. Le lot le plus ancien utilise un autre
-# compte : il est redéfini dans les host_vars des commutateurs concernés.
+# Default credentials for the fleet. The oldest batch uses a different
+# account: it is overridden in the host_vars of the switches concerned.
 oscx_user: "{{ vault_oscx_user }}"
 oscx_password: "{{ vault_oscx_password }}"
 
-# VLAN propagés sur l'ensemble du parc. Ajouter une ligne ici suffit : le
-# playbook les crée partout et ne touche à rien d'autre.
+# VLANs propagated across the whole fleet. Adding a line here is enough: the
+# playbook creates them everywhere and touches nothing else.
 vlans:
   - id: 10
     name: ADMINISTRATION
   - id: 20
-    name: SOINS
+    name: CLINICAL
   - id: 30
-    name: IMAGERIE
+    name: IMAGING
   - id: 40
     name: BIOMEDICAL
   - id: 50
-    name: WIFI-PERSONNEL
+    name: WIFI-STAFF
   - id: 60
-    name: WIFI-INVITES
+    name: WIFI-GUEST
   - id: 70
-    name: TELEPHONIE
+    name: VOICE
   - id: 90
     name: MANAGEMENT
   - id: 300
     name: UPLINK
 
-# Version logicielle attendue sur tout le parc. Le playbook `versions.yml`
-# relève la version réelle de chaque commutateur et liste les écarts.
+# Expected software version across the fleet. The `versions.yml` playbook
+# collects the actual version of each switch and lists the mismatches.
 firmware_expected: "10.10.1020"

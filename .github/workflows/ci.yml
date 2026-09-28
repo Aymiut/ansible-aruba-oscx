@@ -4,7 +4,7 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  verifier:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -13,25 +13,25 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Installer Ansible et la collection
+      - name: Install Ansible and the collection
         run: |
           python -m pip install --upgrade pip
           pip install ansible-core
           ansible-galaxy collection install -r requirements.yml
 
-      - name: Vérifier la forme des fichiers YAML
+      - name: Lint YAML files
         run: |
           pip install yamllint
           yamllint .
 
-      - name: Vérifier l'inventaire
+      - name: Check the inventory
         run: ansible-inventory -i inventory/hosts.yml --list > /dev/null
 
-      - name: Vérifier la syntaxe des playbooks
+      - name: Check playbook syntax
         run: |
           for p in playbooks/*.yml; do
             ansible-playbook -i inventory/hosts.yml --syntax-check "$p"
           done
 
-      - name: Tester le garde-fou des agrégations
+      - name: Test the LAG guard
         run: ansible-playbook tests/stack-member-guard.yml

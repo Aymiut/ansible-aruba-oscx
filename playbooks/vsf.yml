@@ -1,12 +1,12 @@
 ---
-# Stacking VSF des commutateurs neufs intégrés à un stack existant.
-- name: Configurer les membres de stack VSF
+# VSF stacking for new switches joining an existing stack.
+- name: Configure the VSF stack members
   hosts: aoscx
   gather_facts: false
   vars:
     ansible_connection: ansible.netcommon.network_cli
   tasks:
-    - name: Déclarer le membre et ses liens
+    - name: Declare the member and its links
       ansible.builtin.include_role:
         name: aoscx
         tasks_from: vsf

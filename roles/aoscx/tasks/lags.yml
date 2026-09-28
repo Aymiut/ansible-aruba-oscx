@@ -1,31 +1,31 @@
 ---
-# Sur un stack, l'identifiant de port s'écrit membre/module/port. Viser le
-# mauvais membre revient à reconfigurer un commutateur déjà en production :
-# on refuse d'appliquer si un port ne correspond pas au membre déclaré.
-- name: Vérifier que chaque port appartient au membre de stack déclaré
+# In a stack, a port ID is written member/module/port. Targeting the wrong
+# member means reconfiguring a switch that is already in production, so we
+# refuse to apply if a port doesn't match the declared member.
+- name: Check that each port belongs to the declared stack member
   ansible.builtin.assert:
     that:
       - item.1.split('/')[0] | int == item.0.member
     fail_msg: >-
-      {{ item.1 }} n'est pas sur le membre {{ item.0.member }} du stack
-      ({{ inventory_hostname }}). Corriger le host_vars avant d'appliquer.
+      {{ item.1 }} is not on stack member {{ item.0.member }}
+      ({{ inventory_hostname }}). Fix the host_vars before applying.
     quiet: true
   loop: "{{ lags | subelements('interfaces') }}"
   loop_control:
     label: "lag{{ item.0.id }} {{ item.1 }}"
 
-# Les ports d'un commutateur Aruba sont administrativement down par défaut.
-# Sans cette tâche, l'agrégation se crée mais ne monte jamais.
-- name: Activer les ports membres de l'agrégation
+# Ports on an Aruba switch are administratively down by default.
+# Without this task, the LAG gets created but never comes up.
+- name: Enable the LAG member ports
   arubanetworks.aoscx.aoscx_interface:
     name: "{{ item.1 }}"
-    description: "Membre de lag{{ item.0.id }}"
+    description: "Member of lag{{ item.0.id }}"
     enabled: true
   loop: "{{ lags | subelements('interfaces') }}"
   loop_control:
     label: "{{ item.1 }}"
 
-- name: Créer les agrégations LACP
+- name: Create the LACP LAGs
   arubanetworks.aoscx.aoscx_lag_interface:
     name: "lag{{ item.id }}"
     interfaces: "{{ item.interfaces }}"
@@ -35,7 +35,7 @@
   loop_control:
     label: "lag{{ item.id }} {{ item.description }}"
 
-- name: Poser les VLAN sur les agrégations
+- name: Assign the VLANs to the LAGs
   arubanetworks.aoscx.aoscx_l2_interface:
     interface: "lag{{ item.id }}"
     vlan_mode: trunk
@@ -45,7 +45,7 @@
   loop_control:
     label: "lag{{ item.id }}"
 
-- name: Activer les agrégations
+- name: Enable the LAGs
   arubanetworks.aoscx.aoscx_interface:
     name: "lag{{ item.id }}"
     description: "{{ item.description }}"

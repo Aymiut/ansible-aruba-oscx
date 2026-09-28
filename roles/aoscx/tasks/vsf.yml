@@ -1,8 +1,8 @@
 ---
-# Il n'existe pas de module pour le stacking VSF : il faut passer par le CLI.
-# Cette partie n'a pas pu être testée en simulation, les images d'EVE-NG ne
-# supportent pas le stacking ; elle a été écrite avant l'intervention sur site.
-- name: Déclarer le membre de stack et ses liens VSF
+# There is no module for VSF stacking: it has to go through the CLI.
+# This part could not be tested in simulation because the EVE-NG images don't
+# support stacking; it was written before the on-site intervention.
+- name: Declare the stack member and its VSF links
   arubanetworks.aoscx.aoscx_config:
     lines:
       - "link 1 {{ vsf.link_interfaces | join(',') }}"

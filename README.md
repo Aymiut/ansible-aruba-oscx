@@ -1,46 +1,46 @@
-# Automatisation d'un parc Aruba OS-CX avec Ansible
+# Automating an Aruba OS-CX switch fleet with Ansible
 
-Configurer une vingtaine de commutateurs Aruba OS-CX depuis un inventaire : VLAN, agrégations de
-liens LACP, stacking VSF et relevé des versions logicielles.
+Configure about twenty Aruba OS-CX switches from an inventory: VLANs, LACP link aggregation
+(LAGs), VSF stacking and software version reporting.
 
-**Ce dépôt est une reconstruction générique.** Le projet d'origine a été mené chez SPIE ICS pour un
-établissement de santé : ce code et ces données appartiennent au client et ne sont pas publiables.
-Ici, tout est fictif — vingt commutateurs d'exemple, adresses en `10.50.10.0/24`, identifiants dans
-un fichier chiffré. Ce qui est réel, c'est la structure du projet, les tâches et les pièges
-rencontrés en production.
+**This repository is a generic reconstruction.** The original project was carried out at SPIE ICS
+for a healthcare facility: that code and data belong to the client and cannot be published. Here,
+everything is fictional: twenty example switches, addresses in `10.50.10.0/24`, credentials in an
+encrypted file. What is real is the project structure, the tasks and the pitfalls hit in
+production.
 
-## Ce que ça fait
+## What it does
 
-| Playbook             | Effet                                                                                |
-| -------------------- | ------------------------------------------------------------------------------------ |
-| `versions.yml`       | Lecture seule : relève la version logicielle de chaque commutateur et signale les écarts. |
-| `vlans.yml`          | Crée sur tout le parc les VLAN déclarés dans `group_vars`.                            |
-| `lags.yml`           | Crée les agrégations LACP des commutateurs qui en déclarent, et pose leurs VLAN.      |
-| `vsf.yml`            | Déclare le membre de stack VSF et ses liens, par le CLI.                              |
-| `site.yml`           | Relevé, puis VLAN, puis agrégations.                                                  |
+| Playbook       | Effect                                                                            |
+| -------------- | --------------------------------------------------------------------------------- |
+| `versions.yml` | Read-only: collects the software version of each switch and flags mismatches.     |
+| `vlans.yml`    | Creates the VLANs declared in `group_vars` across the whole fleet.                |
+| `lags.yml`     | Creates the LACP LAGs on the switches that declare some, and assigns their VLANs. |
+| `vsf.yml`      | Declares the VSF stack member and its links, through the CLI.                     |
+| `site.yml`     | Version check, then VLANs, then LAGs.                                             |
 
 ## Structure
 
 ```
 inventory/
-├─ hosts.yml                   20 commutateurs : cœur, agrégation, accès
+├─ hosts.yml                   20 switches: core, aggregation, access
 ├─ group_vars/aoscx/
-│  ├─ main.yml                 connexion, identifiants par défaut, VLAN du parc, version attendue
-│  └─ vault.yml.example        modèle du fichier chiffré (le vrai n'est pas versionné)
+│  ├─ main.yml                 connection, default credentials, fleet VLANs, expected version
+│  └─ vault.yml.example        template for the encrypted file (the real one is not versioned)
 └─ host_vars/
-   ├─ sw-acc-02.yml            ports d'agrégation et membre de stack de ce commutateur
-   ├─ sw-acc-03.yml            identifiants du lot ancien
-   └─ …                        un fichier par commutateur
+   ├─ sw-acc-02.yml            LAG ports and stack member for this switch
+   ├─ sw-acc-03.yml            credentials for the legacy batch
+   └─ …                        one file per switch
 roles/aoscx/tasks/             vlans, lags, vsf, versions
-playbooks/                     un playbook par opération, plus site.yml
-tests/                         vérification du garde-fou, sans matériel
+playbooks/                     one playbook per operation, plus site.yml
+tests/                         check of the LAG guard, no hardware needed
 ```
 
-Le parc a deux jeux d'identifiants : celui de `group_vars/aoscx/main.yml` s'applique partout, et les
-quelques commutateurs du lot le plus ancien redéfinissent le leur dans leur `host_vars`. Un
-commutateur qui ne déclare ni agrégation ni stack n'est pas modifié par les tâches correspondantes.
+The fleet has two sets of credentials: the one in `group_vars/aoscx/main.yml` applies everywhere,
+and the few switches from the oldest batch override it in their `host_vars`. A switch that declares
+neither a LAG nor a stack is left untouched by the corresponding tasks.
 
-## Utilisation
+## Usage
 
 ```bash
 pip install -r requirements.txt
@@ -49,32 +49,31 @@ ansible-galaxy collection install -r requirements.yml
 cp inventory/group_vars/aoscx/vault.yml.example inventory/group_vars/aoscx/vault.yml
 ansible-vault encrypt inventory/group_vars/aoscx/vault.yml
 
-ansible-playbook playbooks/versions.yml --ask-vault-pass          # lecture seule
-ansible-playbook playbooks/site.yml --check --ask-vault-pass      # simulation
-ansible-playbook playbooks/site.yml --ask-vault-pass              # application
+ansible-playbook playbooks/versions.yml --ask-vault-pass          # read-only
+ansible-playbook playbooks/site.yml --check --ask-vault-pass      # dry run
+ansible-playbook playbooks/site.yml --ask-vault-pass              # apply
 ```
 
-## Ce que la production a appris à ce code
+## Lessons from production
 
-- **Le numéro de membre de stack.** Sur un stack, un port s'écrit `membre/module/port`. Viser le
-  mauvais membre ne provoque aucune erreur : le playbook reconfigure simplement un commutateur déjà
-  en service. Le rôle refuse donc d'appliquer si un port ne correspond pas au membre déclaré dans le
-  `host_vars`. C'est le test de `tests/stack-member-guard.yml`.
-- **Les ports Aruba sont administrativement `down` par défaut.** Une agrégation se crée sans erreur
-  et ne monte jamais. Les tâches activent explicitement les ports membres, puis l'agrégation.
-- **Changer l'adresse de management coupe la session en cours.** Il n'existe pas de module pour
-  cette opération et le CLI se coupe sous les pieds. La renumérotation n'est pas dans ce dépôt : sur
-  le terrain, elle se fait en gardant l'ancienne adresse sur une autre interface VLAN le temps de la
-  bascule.
-- **La compatibilité des versions se vérifie en premier.** Un `ansible-core` trop récent pour la
-  collection fait échouer la connexion sans message clair. C'est ce qui a bloqué le projet d'origine
-  plusieurs semaines, pendant lesquelles les vraies pistes semblaient être l'hyperviseur ou Python.
-- **`--check` avant toute application.** Sur un parc, une erreur se propage aussi vite qu'une
-  bonne configuration.
+- **The stack member number.** In a stack, a port is written `member/module/port`. Targeting the
+  wrong member raises no error: the playbook simply reconfigures a switch that is already in
+  service. So the role refuses to apply if a port doesn't match the member declared in
+  `host_vars`. This is what `tests/stack-member-guard.yml` tests.
+- **Aruba ports are administratively `down` by default.** A LAG gets created without any error and
+  never comes up. The tasks explicitly enable the member ports, then the LAG.
+- **Changing the management address cuts the current session.** There is no module for this
+  operation, and the CLI connection drops out from under you. Renumbering is not in this
+  repository: in the field, it is done by keeping the old address on another VLAN interface during
+  the cutover.
+- **Check version compatibility first.** An `ansible-core` that is too recent for the collection
+  makes the connection fail with no clear error message. This blocked the original project for
+  several weeks, while the hypervisor or Python looked like the obvious suspects.
+- **`--check` before every apply.** Across a fleet, a mistake spreads as fast as a good
+  configuration.
 
-## Limites
+## Limitations
 
-- Le stacking VSF n'est pas testable en simulation : les images de commutateurs d'EVE-NG ne le
-  supportent pas.
-- Ce dépôt n'a pas été exécuté contre du matériel réel dans cette version générique. La CI vérifie
-  l'inventaire, la syntaxe des playbooks et le garde-fou des agrégations, sans matériel.
+- VSF stacking can't be tested in simulation: the EVE-NG switch images don't support it.
+- This generic version has not been run against real hardware. The CI checks the inventory, the
+  playbook syntax and the LAG guard, without hardware.
